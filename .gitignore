@@ -1,3 +1,5 @@
 *.hdf5
 *.json
 *.h5
+Data/adience_data_preprocessing
+Data/vgg_data_preprocessing

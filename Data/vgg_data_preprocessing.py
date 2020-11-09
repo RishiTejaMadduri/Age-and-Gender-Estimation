@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[15]:
 
 
 #Loding Libraries and Dependencies
@@ -14,9 +14,10 @@ from keras.models import model_from_json, Sequential
 from keras.layers import Input, Convolution2D, ZeroPadding2D, MaxPooling2D, Flatten, Dropout, Activation
 import h5py
 import pandas as pd
+import pickle
 
 
-# In[3]:
+# In[2]:
 
 
 #Loading the pre-trained weights from .mat model
@@ -24,7 +25,7 @@ file2='/home/rishi/Projects/Matroid/vgg networks/vgg_face_matconvnet/vgg_face_ma
 data=loadmat(file2)
 
 
-# In[5]:
+# In[16]:
 
 
 #HandWritten Model-For extracting weights
@@ -90,7 +91,7 @@ model.add(Flatten())
 model.add(Activation('softmax', name= 'softmax'))
 
 
-# In[7]:
+# In[17]:
 
 
 #net consists of layers, weights, biases
@@ -98,7 +99,7 @@ net=data['net'][0][0]
 ref_model_layers=net['layers']
 
 
-# In[66]:
+# In[18]:
 
 
 #Ensuring that only Convolutional and fc layers are being considered
@@ -113,12 +114,13 @@ for i in range(ref_model_layers.shape[1]):
         print("",end="")
 
 
-# In[77]:
+# In[19]:
 
 
 #Checking if MATLAB files and our vars contain the same layers or not
 #If they do, extract weights and biases to store in Keras format.
-
+weights_to_save=[]
+bias_to_save=[]
 base_model_layer_names = [layer.name for layer in model.layers]
 num_of_ref_model_layers = ref_model_layers.shape[1]
 for i in range(num_of_ref_model_layers):
@@ -131,22 +133,16 @@ for i in range(num_of_ref_model_layers):
 
             weights=ref_model_layers[0][i][0][0]['weights'][0][0]
             bias = ref_model_layers[0][i][0][0]['weights'][0][1]
-
+            weights_to_save.append(weights)
+            bias_to_save.append(weights)
             model.layers[base_model_index].set_weights([weights, bias[:,0]])
 
 
-# In[83]:
+# In[20]:
 
 
-#Saving the weights and Model for Keras
-model.save_weights("vgg_pretrained_weights.h5")
-model_config=model.to_json()
-open("model_structure.json", "w").write(model_config)
-model.save("model.hdf5")
-
-
-# In[ ]:
-
-
-
+file='pkl_weights'
+outfile = open(file,'wb')
+pickle.dump(weights_to_save,outfile)
+outfile.close()
 
